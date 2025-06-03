@@ -1,0 +1,7 @@
+
+
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+  @for (item of gifsList(); track item.alt) {
+    <gifs-list-item [item]="item"/>
+  }
+</div>
