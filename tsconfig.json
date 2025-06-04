@@ -6,8 +6,10 @@
     "baseUrl": ".",
     "paths": {
       "@environments/*": ["src/environments/*"],
+      "@components/*": ["src/app/gifs/components/*"],
       "@services/*": ["src/app/gifs/services/*"],
       "@interfaces/*": ["src/app/gifs/interfaces/*"],
+      "@mappers/*": ["src/app/gifs/mappers/*"],
     },
     "outDir": "./dist/out-tsc",
     "strict": true,
