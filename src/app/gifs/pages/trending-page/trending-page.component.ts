@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { GifsService } from '@services/gifs.service';
+import { Component, inject } from '@angular/core';
 import { ListComponent } from "../../components/list/list.component";
 import { Item } from '../../interfaces/item.interface';
 
@@ -60,5 +61,7 @@ export default class TrendingPageComponent {
       alt: 'mage-11.jpg'
     },
   ]
+
+  gifsServices = inject(GifsService)
 
 }
