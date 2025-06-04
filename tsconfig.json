@@ -6,7 +6,8 @@
     "baseUrl": ".",
     "paths": {
       "@environments/*": ["src/environments/*"],
-      "@services/*": ["src/app/gifs/services/*"]
+      "@services/*": ["src/app/gifs/services/*"],
+      "@interfaces/*": ["src/app/gifs/interfaces/*"],
     },
     "outDir": "./dist/out-tsc",
     "strict": true,
