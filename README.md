@@ -10,9 +10,18 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The appli
 
 | Name              | Descripton           |
 | ----------------- | -------------------- |
+| production        |                      |
+| companyName       |                      |
+| companyName2      |                      |
+| companySlogan     |                      |
 | giphyApiKey       | Giphy api key        |
 | giphyUrl          | Giphy url            |
 | giphyLimit        | Giphy content limit  |
+
+### Files Route 
+
+- src/environments/environment.developments.ts
+- src/environments/environment.ts
 
 
 ## Code scaffolding
