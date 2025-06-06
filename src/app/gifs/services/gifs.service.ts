@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { map, Observable, Subscription, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 
 import { environment } from '@environments/environment';
 import type { GiphyResponse } from '@interfaces/giphy.interface';
@@ -9,6 +9,7 @@ import { GifMapper } from '@mappers/gif.mapper';
 import { LocalStorageFunctions } from 'src/app/shared/utilities';
 
 const LOCALSTORAGE_KEY = 'gifs';
+const GIFS_CHUNKS_SIZE = 3;
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +18,19 @@ export class GifsService {
   private http = inject(HttpClient);
 
   trendingGifs = signal<Gif[]>([]);
-  trendingGifsLoading = signal<boolean>(true);
+  isTrendingGifsLoading = signal<boolean>(false);
+  private trendingPage = signal<number>(0);
+
+  trendingGifGroup = computed<Gif[][]>(() => {
+    const groups = [];
+    const gifs = this.trendingGifs();
+    for (let i = 0; i < gifs.length; i+=GIFS_CHUNKS_SIZE) {
+      groups.push(gifs.slice(i, i + GIFS_CHUNKS_SIZE));
+    }
+    console.log(groups);
+
+    return groups;
+  })
 
   searchHistory = signal<Record<string, Gif[]>>(
     LocalStorageFunctions.loadFromLocalStorege(LOCALSTORAGE_KEY)
@@ -35,23 +48,26 @@ export class GifsService {
     this.loadTrendingGifs();
   }
 
-  loadTrendingGifs(): Subscription {
+  loadTrendingGifs() {
     const { giphyUrl, giphyApiKey, giphyLimit } = environment;
+    if (this.isTrendingGifsLoading()) return;
+
+    this.isTrendingGifsLoading.set(true);
 
     return this.http
       .get<GiphyResponse>(`${giphyUrl}/gifs/trending`, {
         params: {
           api_key: giphyApiKey,
           limit: giphyLimit,
-          offset: 0,
+          offset: this.trendingPage() * giphyLimit,
           rating: 'g',
         },
       })
       .subscribe((resp) => {
         const gifs = GifMapper.mapGiphysToGifArray(resp.data);
-        this.trendingGifs.set(gifs);
-        this.trendingGifsLoading.set(false);
-        console.log(gifs);
+        this.trendingGifs.update((current) => [...current, ...gifs, ]);
+        this.trendingPage.update((page) => page + 1);
+        this.isTrendingGifsLoading.set(false);
       });
   }
 
