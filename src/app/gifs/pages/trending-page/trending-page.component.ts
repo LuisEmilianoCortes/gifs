@@ -1,64 +1,40 @@
-import { Component } from '@angular/core';
-import { ListComponent } from "../../components/list/list.component";
-import { Item } from '../../interfaces/item.interface';
+import { AfterViewInit, Component, ElementRef, inject, viewChild } from '@angular/core';
+
+import { ScrollStateService } from '@shared/services/scroll-state.service';
+import { GifsService } from '@services/gifs.service';
 
 @Component({
   selector: 'app-trending-page',
   standalone: true,
-  imports: [ListComponent],
-  templateUrl: './trending-page.component.html'
+  imports: [],
+  templateUrl: './trending-page.component.html',
+  styleUrl: './trending-page.component.css',
 })
-export default class TrendingPageComponent {
+export default class TrendingPageComponent implements AfterViewInit {
 
-  gifs: Item[] = [
-    {
-      src: 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg',
-      alt: 'image.jpg'
-    },
-    {
-      src: 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-1.jpg',
-      alt: 'image-1.jpg'
-    },
-    {
-      src: 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-2.jpg',
-      alt: 'image-2.jpg'
-    },
-    {
-      src: 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-3.jpg',
-      alt: 'image-3.jpg'
-    },
-    {
-      src: 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-4.jpg',
-      alt: 'image-4.jpg'
-    },
-    {
-      src: 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-5.jpg',
-      alt: 'image-5.jpg'
-    },
-    {
-      src: 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-6.jpg',
-      alt: 'image-6.jpg'
-    },
-    {
-      src: 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-7.jpg',
-      alt: 'image-7.jpg'
-    },
-    {
-      src: 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-8.jpg',
-      alt: 'image-8.jpg'
-    },
-    {
-      src: 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-9.jpg',
-      alt: 'image-9.jpg'
-    },
-    {
-      src: 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-10.jpg',
-      alt: 'mage-10.jpg'
-    },
-    {
-      src: 'https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg',
-      alt: 'mage-11.jpg'
-    },
-  ]
+  gifsServices = inject(GifsService);
+  scrollStateService = inject(ScrollStateService);
 
+  scrollDivRef = viewChild<ElementRef>('groupDiv');
+
+  ngAfterViewInit(): void {
+    const scrollDiv = this.scrollDivRef()?.nativeElement;
+    if (!scrollDiv) return;
+
+    const scrollTop = this.scrollStateService.trendingScrollState();
+    scrollDiv.scrollTop = scrollTop;
+  }
+
+  onScroll(event: Event) {
+    const scrollDiv = this.scrollDivRef()?.nativeElement;
+    if (!scrollDiv) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = scrollDiv;
+    const isAtBottom = scrollTop + clientHeight + 300 >= scrollHeight;
+    this.scrollStateService.trendingScrollState.set(scrollTop);
+
+    if (isAtBottom) {
+      this.gifsServices.loadTrendingGifs();
+    }
+  }
 }
